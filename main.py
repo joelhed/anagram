@@ -1,4 +1,8 @@
+#!/usr/bin/env python3
+"""This program is used to solve DN's anagram puzzle."""
 from collections import defaultdict
+import argparse
+import os.path
 import json
 
 
@@ -57,13 +61,16 @@ def write_number_to_words_file():
         json.dump(number_to_words, f)
 
 
-def read_number_to_words_file():
+def get_number_to_words_dict():
+    if not os.path.isfile(numbers_to_words_filename):
+        write_number_to_words_file()
+
     with open(numbers_to_words_filename) as f:
         return json.load(f)
 
 
 def solve(regular_letters, required_letter):
-    number_to_words = read_number_to_words_file()
+    number_to_words = get_number_to_words_dict()
 
     for letters in choices(regular_letters):
         #print(word_to_number(letters), "".join(letters))
@@ -74,8 +81,22 @@ def solve(regular_letters, required_letter):
 
 
 def main():
-    puzzle_letters = "polsotal"
-    words = set(solve(puzzle_letters, "k"))
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+    )
+    parser.add_argument("required_letter")
+    parser.add_argument("other_letters")
+    args = parser.parse_args()
+
+    if len(args.required_letter) != 1 or not args.required_letter.isalpha():
+        print("required_letter must be exactly one alphabetic character")
+        return
+
+    if len(args.other_letters) != 8 or not args.required_letter.isalpha():
+        print("other_letters must be exactly eight alphabetic characters")
+        return
+
+    words = set(solve(args.other_letters, args.required_letter))
     for word in words:
         print(word)
 
